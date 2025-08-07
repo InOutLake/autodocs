@@ -1,4 +1,5 @@
 from docsapi.docsapi import DocsAPIProtocol
+from git_tracker import GitTracker
 
 import os
 from os import PathLike
@@ -6,7 +7,7 @@ from pathlib import Path
 
 
 class Synchronizer:
-    def __init__(self, docsapi: DocsAPIProtocol, gitapi: GitAPIProtocol):
+    def __init__(self, docsapi: DocsAPIProtocol, gitapi: GitTracker):
         self.docsapi = docsapi
         self.docs_folder = os.environ["DOCS_FOLDER"]
         self.gitapi = gitapi
