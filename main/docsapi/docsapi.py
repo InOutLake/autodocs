@@ -1,0 +1,6 @@
+from typing import Protocol
+
+
+class DocsAPIProtocol(Protocol):
+    def get_document_by_path(self, path: str): ...
+    def sync_document_by_path(self, path: str, content: str): ...

@@ -1,11 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "autodocs"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = ["requests>=2.32.4"]
 
-[tools.pyright]
+[tool.setuptools.packages.find]
+where = ["main"]
+include = ["*"]
+namespaces = false
+
+[tool.setuptools.package-dir]
+"" = "main"
+
+[tool.pyright]
 venvPaht = "."
 venv = ".venv"
+include = ["main"]
+extraPaths = ["main"]
