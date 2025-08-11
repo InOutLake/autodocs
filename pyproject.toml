@@ -10,7 +10,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "gitpython>=3.1.45",
-    "requests>=2.32.4",
+ "google>=3.0.0",
+ "requests>=2.32.4",
 ]
 
 [tool.setuptools.packages.find]
@@ -22,7 +23,7 @@ namespaces = false
 "" = "main"
 
 [tool.pyright]
-venvPaht = "."
+venvPath = "."
 venv = ".venv"
 include = ["main"]
 extraPaths = ["main"]

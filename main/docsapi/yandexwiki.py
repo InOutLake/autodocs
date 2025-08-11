@@ -58,13 +58,15 @@ class YandexWiki(DocsAPIProtocol):
 
     def sync_document_by_id(
         self, document_id: str, content: str, allow_merge=True
-    ) -> None:
+    ) -> Any:
         url = self.url + document_id
         body = {"content": content}
         params = {"allow_merge": allow_merge}
         response = requests.post(url, json=body, params=params)
         response.raise_for_status()
+        return response.json()
 
-    def sync_document_by_path(self, path: str, content: str):
+    def sync_document_by_path(self, path: str, content: str) -> Any:
         document_id = self.get_document_by_path(path).id
-        self.sync_document_by_id(document_id, content)
+        updated_document = self.sync_document_by_id(document_id, content)
+        return updated_document
