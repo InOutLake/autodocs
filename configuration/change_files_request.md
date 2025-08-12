@@ -1,10 +1,10 @@
-Now you'll be given a list of documents that were decided to be edited and, their content and the difference between previous program version and a next one.
+Now you'll be given a list of documents that were decided to be edited, their content and the difference between previous program version and a next one.
 Content will be given in the following .json format (aliases are used instead of actual file names):
 ```json
 {
-  "file_name_one.md": "",
-  "project/file_name_two.md": "#Templates api documentation.\n ##Templates creation\n *Route* `post api/template`\n ...",
-  "file_name_tree.md": ""
+  "file_name_one.md": {"template": "api", "content": ""},
+  "project/file_name_two.md": {"template": "api", "content": "#Templates api documentation.\n ##Templates creation\n *Route* `post api/template`\n ...",
+  "file_name_tree.md": {"template": "model", "content": ""}
 }
 ```
 Empty value means files does not have any content yet.

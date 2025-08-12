@@ -11,9 +11,10 @@ import json
 
 
 class GitTracker:
+    # [TODO] dont realy know if there is need in git serialization. I might just put all the functions into the docs_manager directly.
     def __init__(self):
         self.last_commit_file = Path(os.environ["LAST_COMMIT_FILE"])
-        self.repo = git.Repo(Path("__file__").parent.parent)
+        self.repo = git.Repo(Path(os.environ["REPO_PATH"]))
 
     @property
     def last_sync_commit(self):
@@ -42,3 +43,6 @@ class GitTracker:
                     diff_json[change.a_path]["diff"] = None
 
         return json.dumps(diff_json)
+
+    def last_sync_to_head_changes(self):
+        return self.generate_change_log(self.last_sync_commit, self.repo.head.name)

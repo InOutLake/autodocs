@@ -1,6 +1,4 @@
 from llm.llmagent import LlmAgent
-import hashlib
-import json
 
 
 class Llm:
@@ -8,17 +6,19 @@ class Llm:
         self.agent = agent
 
     def get_files_to_change(
-        self, ruleset: str, request: str, diff: str, existing_files: list[str]
+        self,
+        ruleset: str,
+        request: str,
+        diff: str,
+        existing_files: list[str],
     ):
         files_str = "\n".join(existing_files)
 
         prompt = f"""
-        {ruleset}\n
-        {request}\n
-
+        {ruleset}\n\n
+        {request}\n\n
         Current documentation has following files:\n
-        {files_str}
-
+        {files_str}\n\n
         Project has been changed in the following order:\n
         {diff}
         """
@@ -26,11 +26,22 @@ class Llm:
 
     def update_docs(
         self,
+        ruleset: str,
+        request: str,
         diff: str,
         templates: str,
         docs_to_change: str,
         language: str,
     ):
         prompt = f"""
-        {diff}
+        {ruleset}\n\n
+        {request}\n\n
+        Docs to be changed:\n
+        {docs_to_change}\n\n
+        Templates you'll need:\n
+        {templates}\n\n
+        Difference has been made:\n
+        {diff}\n\n
+        Write documentatioin in the {language} language.
         """
+        return self.agent.answer(prompt)
