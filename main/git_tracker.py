@@ -1,9 +1,3 @@
-"""
-TODO
-- Get branch changes compared to the last docs sync commit.
-- Sync commit must be stored in a file.
-"""
-
 import os
 import git
 from pathlib import Path
@@ -45,4 +39,6 @@ class GitTracker:
         return json.dumps(diff_json)
 
     def last_sync_to_head_changes(self):
-        return self.generate_change_log(self.last_sync_commit, self.repo.head.name)
+        return self.generate_change_log(
+            self.last_sync_commit, self.repo.head.commit.hexsha
+        )

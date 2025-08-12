@@ -1,8 +1,3 @@
-"""
-TODO
-Integrate with YW. Probably simply replace all the documents with new ones.
-"""
-
 from enum import StrEnum, auto
 import os
 from typing import Any

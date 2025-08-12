@@ -48,12 +48,14 @@ class DocsManager:
                 )
         return documents_with_content
 
-    def sync_document_by_path(self, document_path: PathLike) -> None:
+    def sync_document_by_path(self, document_path: Path) -> None:
         path = Path(self.docs_folder) / document_path
-        with open(path, "rw") as f:
+        with open(path, "r") as f:
             updated_document = self.docsapi.sync_document_by_path(
-                str(document_path), content=f.read()
+                str(document_path),
+                content=f.read(),
             )
+        with open(path, "r") as f:
             f.seek(0)
             f.write(updated_document.content)
 
