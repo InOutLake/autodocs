@@ -7,17 +7,19 @@ class Llm:
     def __init__(self, agent: LlmAgent):
         self.agent = agent
 
-    def get_files_to_change(self, ruleset: str, diff: str, existing_files: list[str]):
+    def get_files_to_change(
+        self, ruleset: str, request: str, diff: str, existing_files: list[str]
+    ):
         files_str = "\n".join(existing_files)
 
         prompt = f"""
-        You are a documentation updater. Documents are structured based on the following ruleset:\n
-        {ruleset}
+        {ruleset}\n
+        {request}\n
 
-        Currently documentation has following files:\n
+        Current documentation has following files:\n
         {files_str}
 
-        Project has been changed in the following order:
+        Project has been changed in the following order:\n
         {diff}
         """
         return self.agent.answer(prompt)
