@@ -4,6 +4,7 @@ Based on the changes logs and ruleset (dont forget cache) create new docs or cha
 Insert change history in the table with short changes summary.
 """
 
+import json
 import os
 from pathlib import Path
 from docs_manager import DocsManager
@@ -22,7 +23,7 @@ class DocsGenerator:
         self.config_folder = os.environ["CONFIG_FOLDER"]
         self.language = os.environ["LANGUAGE"]
 
-    def update_docs(self):
+    def update_docs(self) -> None:
         diff = self.docs_manager.gitapi.last_sync_to_head_changes()
         ruleset = read_config(self.config_folder, "ruleset.md")
         files_to_change_request = read_config(
@@ -31,12 +32,13 @@ class DocsGenerator:
         change_files_request = read_config(
             self.config_folder, "change_files_request.md"
         )
-        existing_files = [str(doc) for doc in self.docs_manager.list_documents()]
+        existing_documents = self.docs_manager.list_documents_with_types()
+        existing_documents = json.dumps(existing_documents)
         files_to_change = self.llm.get_files_to_change(
             ruleset,
             files_to_change_request,
             diff,
-            existing_files,
+            existing_documents,
         )
         print(files_to_change)
 

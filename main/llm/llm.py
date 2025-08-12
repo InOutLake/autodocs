@@ -10,15 +10,13 @@ class Llm:
         ruleset: str,
         request: str,
         diff: str,
-        existing_files: list[str],
+        existing_files: str,
     ):
-        files_str = "\n".join(existing_files)
-
         prompt = f"""
         {ruleset}\n\n
         {request}\n\n
         Current documentation has following files:\n
-        {files_str}\n\n
+        {existing_files}\n\n
         Project has been changed in the following order:\n
         {diff}
         """
