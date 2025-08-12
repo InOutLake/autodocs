@@ -12,7 +12,7 @@ Documentation might not need to be changed, for example, if bug was fixed.
 Write your decision in the following .json format (aliases are used instead of actual file names):
 ```json
 {
-  "file_name_one.md": {"create", "api"}
+  "file_name_one.md": ["create", "api"]
   "project/file_name_two.md": "update",
   "file_name_tree.md": "delete"
 }

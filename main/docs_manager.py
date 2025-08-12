@@ -30,7 +30,7 @@ class DocsManager:
                 raise Exception("Unknown file type in docs (probably symlink)")
         return files_list
 
-    def list_documents_with_types(self) -> dict[str, str]:
+    def list_documents_with_types(self) -> dict[Path, str]:
         documents_with_types = {}
         documents_list = self.list_folder(self.docs_folder)
         for document in documents_list:
@@ -63,12 +63,21 @@ class DocsManager:
         for doc in documents:
             self.sync_document_by_path(doc)
 
-    def templates(self):
+    def templates(self) -> dict[Path, str]:
         templates = {}
         templates_list = self.list_folder(self.templates_folder)
         for template in templates_list:
             with open(template, "r") as t:
                 templates[template.read_text] = {
-                    "template_type": t.readline(),
                     "content": t.read(),
                 }
+        return templates
+
+    def create_document(self, document_path: Path, document_type: str):
+        document_path.write_text(f"<<Template={document_type}>>")
+
+    def edit_document(self, document_path: Path, content: str):
+        document_path.write_text(content)
+
+    def delete_document(self, document_path: Path):
+        document_path.unlink()

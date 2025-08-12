@@ -1,3 +1,4 @@
+<<Template=api>>
 ```markdown
 # Название API
 

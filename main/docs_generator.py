@@ -41,8 +41,28 @@ class DocsGenerator:
             existing_documents,
         )
         print(files_to_change)
+        files_to_change = json.loads(files_to_change)
 
-        self.llm.update_docs(
+        request_files_to_change = {}
+        needed_templates = set()
+        for file, action in files_to_change:
+            match action:
+                case "create", document_type:
+                    self.docs_manager.create_document(file, document_type)
+                    if document_type not in needed_templates:
+                        needed_templates.add(document_type)
+                    request_files_to_change[file] = Path(file).read_text()
+                case "update":
+                    request_files_to_change[file] = Path(file).read_text()
+                case "delete":
+                    self.docs_manager.delete_document(Path(file))
+
+        templates = self.docs_manager.templates()
+        templates = "\n\n".join(
+            [template.stem for template in templates if template in needed_templates]
+        )
+
+        update = self.llm.update_docs(
             ruleset,
             change_files_request,
             diff,
@@ -50,3 +70,4 @@ class DocsGenerator:
             files_to_change,
             language=self.language,
         )
+        print(update)
