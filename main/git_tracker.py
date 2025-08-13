@@ -6,7 +6,7 @@ import json
 
 class GitTracker:
     def __init__(self):
-        self.last_commit_file = Path(os.environ["LAST_COMMIT_FILE"])
+        self.last_commit_file = Path(__file__) / "data" / "last_commit.txt"
         self.repo = git.Repo(Path(os.environ["REPO_PATH"]))
 
     @property

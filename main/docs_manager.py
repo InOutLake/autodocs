@@ -37,11 +37,9 @@ class Template(Document): ...
 
 
 class DocsManager:
-    def __init__(self, docsapi: DocsAPIProtocol, gitapi: GitTracker):
-        self.docsapi = docsapi
-        self.gitapi = gitapi
-        self.docs_folder = Path(os.environ["DOCS_FOLDER"])
-        self.templates_folder = Path(os.environ["TEMPLATES_FOLDER"])
+    def __init__(self):
+        self.docs_folder = Path(os.environ["DOCS_DIR"])
+        self.templates_folder = Path(os.environ["TEMPLATES_DIR"])
 
     def list_folder(self, folder: Path) -> list[Path]:
         files_list = []
