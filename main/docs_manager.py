@@ -7,6 +7,8 @@ from git_tracker import GitTracker
 
 
 class Document:
+    # ? It is uclear whether document represents existing file or not.
+    # ? I might create it on init if it does not exist, but how do I handle template field then?
     def __init__(self, path: Path, docs_folder: Path):
         self.path = path.relative_to(docs_folder)
         try:
@@ -61,11 +63,14 @@ class DocsManager:
         path_list = self.list_folder(self.templates_folder)
         return [Template(path, self.templates_folder) for path in path_list]
 
-    def create_document(self, document_path: Path, document_template: str):
-        document_path.write_text(f"<<{document_template}>>")
+    def create_document(self, document_path: Path, template: str):
+        document = Document(document_path, self.docs_folder)
+        document.create(template)
 
     def edit_document(self, document_path: Path, content: str):
-        document_path.write_text(content)
+        document = Document(document_path, self.docs_folder)
+        document.edit(content)
 
     def delete_document(self, document_path: Path):
-        document_path.unlink()
+        document = Document(document_path, self.docs_folder)
+        document.delete()
