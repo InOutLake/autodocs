@@ -49,24 +49,12 @@ class DocsManager:
             elif f.is_dir():
                 files_list += self.list_folder(f)
             else:
-                raise Exception("Unknown file type in docs (probably symlink)")
+                raise Exception(f"Unprocessable file type in docs: {str(f)}")
         return files_list
 
     def list_documents(self) -> list[Document]:
         paths_list = self.list_folder(self.docs_folder)
         return [Document(path, self.docs_folder) for path in paths_list]
-
-    def sync_document(self, document: Document) -> None:
-        updated_content = self.docsapi.sync_document_by_path(
-            str(document.path),
-            content=document.read(),
-        )
-        document.edit(updated_content)
-
-    def sync_documents(self) -> None:
-        documents = self.list_documents()
-        for doc in documents:
-            self.sync_document(doc)
 
     @cache
     def list_templates(self) -> list[Template]:

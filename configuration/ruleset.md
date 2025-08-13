@@ -12,11 +12,11 @@ Lines with the `/` after a name are folders.
 
 Logic part unites the certain part of app logic. For example, managing users part would be united in one folder.
 
-There are several documentation files types. Each of them uses template corresponding to its name.
-For example, "api" documentatioin uses "api" template.
+There are several documentation templates.
 
 Documentation file types:
 - api
 - model
+- library
 
 

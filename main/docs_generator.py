@@ -26,7 +26,7 @@ class DocsGenerator:
         change_files_request = read_config(
             self.config_folder, "change_files_request.md"
         )
-        existing_documents = self.docs_manager.list_documents_with_types()
+        existing_documents = self.docs_manager.list_documents()
         existing_documents = json.dumps(existing_documents)
         files_to_change = self.llm.get_files_to_change(
             ruleset,

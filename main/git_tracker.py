@@ -5,7 +5,6 @@ import json
 
 
 class GitTracker:
-    # [TODO] dont realy know if there is need in git serialization. I might just put all the functions into the docs_manager directly.
     def __init__(self):
         self.last_commit_file = Path(os.environ["LAST_COMMIT_FILE"])
         self.repo = git.Repo(Path(os.environ["REPO_PATH"]))

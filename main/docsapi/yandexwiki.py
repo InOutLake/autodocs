@@ -62,6 +62,8 @@ class YandexWiki(DocsAPIProtocol):
         return response.json()
 
     def sync_document_by_path(self, path: str, content: str) -> Any:
-        document_id = self.get_document_by_path(path).id
+        document_id = self.get_document_by_path(path)
+        # [TODO] handle if document does not exist
+        # [TODO] handle document deletion
         updated_document = self.sync_document_by_id(document_id, content)
         return updated_document
