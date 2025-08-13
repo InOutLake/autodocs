@@ -1,20 +1,40 @@
-Now you'll be given a complete list of existing documents, their template type and a difference between previous program version and a next one.
-Documents list will be given in the following format:
+#### **Input Format**
+You will receive:
+1. A list of existing documentation files with their template types
+2. A diff showing changes between program versions
+
+#### **Analysis Process**
+
+1. **Identify Affected Components**
+   - Scan the diff for:
+     - New files or modules
+     - Modified functions, classes, or endpoints
+     - Deleted components
+
+2. **Map Changes to Documentation Needs**
+   - For each change, determine if it affects existing documentation or requires new documentation
+   - Consider the scope of changes:
+     - Structural changes → Update documentation
+     - New features → Create new documentation
+     - Removed features → Delete documentation
+
+3. **Decision Rules**
+   - **Create**: When new functionality is added that lacks documentation
+   - **Update**: When existing functionality is modified
+   - **Delete**: When functionality is removed entirely
+   - **No Change**: When changes are purely bug fixes or internal refactoring
+
+4. **Template Selection**
+   - Match new documentation to appropriate template based on component type:
+     - API endpoints → `api` template
+     - Data structures → `model` template
+     - Service logic → `service` template
+
+5. **Output Format**
 ```json
 {
-  "services/service_0/logic_part_1/api": "api",
-  "services/service_0/logic_part_1/model": "model"
+  "file_path.md": ["action", "template_type"],
+  "another_file.md": "action"
 }
 ```
-Based on the difference decide which documents has to be changed, what documents to add and what documents to delete if there is need to do so. Also decide which type of template must be used for new documents.
-Documentation might not need to be changed, for example, if bug was fixed.
-
-Write your decision in the following .json format (aliases are used instead of actual file names):
-```json
-{
-  "file_name_one.md": ["create", "api"]
-  "project/file_name_two.md": "update",
-  "file_name_tree.md": "delete"
-}
-```
-
+Where `action` is one of: `create`, `update`, `delete`

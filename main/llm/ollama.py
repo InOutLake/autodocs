@@ -12,15 +12,20 @@ class OllamaLLM(LlmAgent):
     def answer(
         self,
         prompt: str,
-        temperature: float = 0.3,
-        max_tokens: int = 10000,
+        max_tokens: int = 1000,
+        temperature: float = 0.2,
+        json_response: bool = False,
+        **kwargs,
     ) -> str:
         payload = {
             "model": self.model,
             "prompt": prompt,
+            "think": False,
             "stream": False,
-            "options": {"temperature": temperature, "max_tokens": max_tokens},
+            "options": {"temperature": temperature},
         }
-        response = requests.get(self.url, json=payload)
+        if json_response:
+            payload["format"] = "json"
+        response = requests.post(self.url + "/api/generate", json=payload)
         response.raise_for_status()
         return response.json().get("response", "").strip()

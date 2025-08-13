@@ -20,7 +20,7 @@ class Llm:
         Project has been changed in the following order:\n
         {diff}
         """
-        return self.agent.answer(prompt)
+        return self.agent.answer(prompt, max_tokens=1000, json_response=True)
 
     def update_docs(
         self,
@@ -42,4 +42,4 @@ class Llm:
         {diff}\n\n
         Write documentatioin in the {language} language.
         """
-        return self.agent.answer(prompt)
+        return self.agent.answer(prompt, max_tokens=10000, json_response=True)
