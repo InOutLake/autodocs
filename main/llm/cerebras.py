@@ -10,6 +10,7 @@ class CerebrasModelsEnum(StrEnum):
 
 
 class CerebrasLlm(LlmAgent):
+    # TODO: Add strict structured-output integration.  https://inference-docs.cerebras.ai/capabilities/structured-outputs
     def __init__(self):
         self.apikey = os.environ["CEREBRAS_API_KEY"]
         self.url = "https://api.cerebras.ai/v1/chat/completions"
@@ -38,4 +39,4 @@ class CerebrasLlm(LlmAgent):
         }
         response = requests.post(self.url, headers=headers, json=payload)
         response.raise_for_status()
-        return response.json()[0]["choices"]["message"]["content"]
+        return response.json()["choices"][0]["message"]["content"]

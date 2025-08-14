@@ -8,10 +8,12 @@ from git_tracker import GitTracker
 
 
 class Document:
-    # ? It is uclear whether document represents existing file or not.
-    # ? I might create it on init if it does not exist, but how do I handle template field then?
+    # TODO: It is uclear whether document represents existing file or not.
+    # I might create it on init if it does not exist, but how do I handle template field then?
+    # Also I may move docs manager logic to Document classmethods
     def __init__(self, path: Path, docs_folder: Path):
-        self.path = path.relative_to(docs_folder)
+        self.absolute_path = docs_folder / path
+        self.path = self.absolute_path.relative_to(docs_folder)
         try:
             self.content = path.read_text()
             self.template = (
@@ -21,14 +23,15 @@ class Document:
             ...
 
     def create(self, template: str) -> None:
-        self.path.touch(exist_ok=False)
-        self.path.write_text(f"<<{template}>>")
+        self.absolute_path.parent.mkdir(parents=True, exist_ok=True)
+        self.absolute_path.touch(exist_ok=False)
+        self.absolute_path.write_text(f"<<{template}>>")
 
     def edit(self, new_content: str) -> None:
-        self.path.write_text(new_content)
+        self.absolute_path.write_text(new_content)
 
     def delete(self):
-        self.path.unlink()
+        self.absolute_path.unlink()
 
     def read(self):
         return self.content
