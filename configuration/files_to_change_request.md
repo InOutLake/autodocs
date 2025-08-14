@@ -1,7 +1,8 @@
 #### **Input Format**
 You will receive:
 1. A list of existing documentation files with their template types
-2. A diff showing changes between program versions
+2. Available templates for documents
+3. A diff showing changes between last and current program versions
 
 #### **Analysis Process**
 
@@ -25,10 +26,7 @@ You will receive:
    - **No Change**: When changes are purely bug fixes or internal refactoring
 
 4. **Template Selection**
-   - Match new documentation to appropriate template based on component type:
-     - API endpoints → `api` template
-     - Data structures → `model` template
-     - Service logic → `service` template
+   - Match new documentation to appropriate template based on component type
 
 5. **Output Format**
 ```json

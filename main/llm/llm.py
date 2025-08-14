@@ -10,17 +10,20 @@ class Llm:
         ruleset: str,
         request: str,
         diff: str,
+        templates: str,
         existing_files: str,
     ):
         prompt = f"""
         {ruleset}\n\n
         {request}\n\n
+        Available templates:
+        {templates}\n\n
         Current documentation has following files:\n
         {existing_files}\n\n
         Project has been changed in the following order:\n
         {diff}
         """
-        return self.agent.answer(prompt, max_tokens=1000, json_response=True)
+        return self.agent.answer(prompt)
 
     def update_docs(
         self,
@@ -42,4 +45,4 @@ class Llm:
         {diff}\n\n
         Write documentatioin in the {language} language.
         """
-        return self.agent.answer(prompt, max_tokens=10000, json_response=True)
+        return self.agent.answer(prompt)

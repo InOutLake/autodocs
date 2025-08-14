@@ -1,13 +1,16 @@
 import os
+from typing import List, Sequence, cast
 import git
 from pathlib import Path
 import json
+from git.types import PathLike
 
 
 class GitTracker:
     def __init__(self):
         self.last_commit_file = Path(__file__).parent / "data" / "last_commit.txt"
         self.repo = git.Repo(Path(os.environ["REPO_PATH"]))
+        self.paths: List[Path] = [Path(p) for p in os.environ["TRACK_PATHS"].split(":")]
 
     @property
     def last_sync_commit(self):
@@ -20,7 +23,11 @@ class GitTracker:
             f.write(value)
 
     def generate_change_log(self, a_commit: str, b_commit: str) -> str:
-        diff = self.repo.commit(a_commit).diff(b_commit, create_patch=True)
+        diff = self.repo.commit(a_commit).diff(
+            b_commit,
+            create_patch=True,
+            paths=self.paths,  # type: ignore
+        )
         diff_json = {}
 
         for change in diff:
@@ -28,10 +35,8 @@ class GitTracker:
                 diff_content = change.diff.decode()
             else:
                 diff_content = str(change.diff)
-            diff_json[change.a_path] = {
-                "change_type": change.change_type,
+            diff_json[change.b_path] = {
                 "diff": diff_content,
-                "b_path": change.b_path,
             }
         return json.dumps(diff_json, indent=2)
 

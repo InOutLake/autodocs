@@ -26,10 +26,13 @@ class DocsGenerator:
         existing_documents = self.docs_manager.list_documents_dicts(fields=["path"])
         existing_documents = json.dumps(existing_documents)
         diff = self.gitapi.last_sync_to_head_changes()
+        templates = self.docs_manager.list_templates()
+        templates_stems = "\n".join([t.path.stem for t in templates])
         files_to_change = self.llm.get_files_to_change(
             self.config["ruleset"],
             self.config["files_to_change_request"],
             diff,
+            templates_stems,
             existing_documents,
         )
         print(files_to_change)
@@ -52,7 +55,6 @@ class DocsGenerator:
                 case "delete":
                     self.docs_manager.delete_document(Path(file))
 
-        templates = self.docs_manager.list_templates()
         templates = "\n\n".join(
             [
                 template.path.stem + "\n" + template.content

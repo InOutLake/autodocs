@@ -14,7 +14,7 @@ class OllamaLLM(LlmAgent):
         prompt: str,
         max_tokens: int = 1000,
         temperature: float = 0.2,
-        json_response: bool = False,
+        json_response: bool = True,
         **kwargs,
     ) -> str:
         payload = {
