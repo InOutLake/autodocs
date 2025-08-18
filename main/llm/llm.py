@@ -1,10 +1,7 @@
 from typing import List, Literal
 from llm.llmagent import LlmAgent
-from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, RootModel
 import json
-
-# TODO: Introduce and incapsulate output formats for answers
 
 
 class DocumentToChange(BaseModel):
@@ -28,8 +25,7 @@ class DocumentChange(BaseModel):
     )
 
 
-class DocumentChangeList(BaseModel):
-    operations: List[DocumentChange]
+class DocumentChangeList(RootModel[list[DocumentChange]]): ...
 
 
 class Llm:
@@ -41,18 +37,21 @@ class Llm:
         ruleset: str,
         request: str,
         diff: str,
-        templates: str,
+        templates_list: list[str],
         existing_files: str,
     ):
+        templates_formatted = "\n".join(templates_list)
         prompt = f"""
         {ruleset}\n\n
         {request}\n\n
         Available templates:
-        {templates}\n\n
+        {templates_formatted}\n\n
         Current documentation has following files:\n
         {existing_files}\n\n
         Project has been changed in the following order:\n
-        {diff}
+        {diff}\n\n
+        Answer in the following json format:
+        {DocumentsToChangeList.model_json_schema()}
         """
         return DocumentsToChangeList(operations=json.loads(self.agent.answer(prompt)))
 
@@ -77,5 +76,7 @@ class Llm:
         Program difference:\n
         {diff}\n\n
         Write documentation in the {language} language.
+        Answer in the following json format:
+        {DocumentChangeList.model_json_schema()}
         """
-        return DocumentChangeList(operations=json.loads(self.agent.answer(prompt)))
+        return DocumentChangeList(json.loads(self.agent.answer(prompt)))

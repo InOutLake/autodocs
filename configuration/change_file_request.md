@@ -1,4 +1,4 @@
-#### **Input Format**
+# **Input Format**
 You will receive:
 1. List of files to be modified with their current content and template type
 2. Code diff showing changes between program versions
