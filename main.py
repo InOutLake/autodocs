@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 
 if __name__ == "__main__":
+    # TODO: use fabrics to create right type of each manager based on the env or input flags
     load_dotenv()
     docs_manager = DocsManager()
     gitapi = GitTracker()

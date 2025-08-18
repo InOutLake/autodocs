@@ -1,18 +1,11 @@
 from typing import List, Literal
+from docs_manager import Document, Template
 from llm.llmagent import LlmAgent
 from pydantic import BaseModel, Field, RootModel
 import json
 
 
-class DocumentToChange(BaseModel):
-    document_path: str = Field(examples=["synchronizer/functions.md"])
-    operation: Literal["create", "update", "delete"] = Field(
-        examples=["create|update|delete"]
-    )
-
-
-class DocumentsToChangeList(BaseModel):
-    operations: List[DocumentToChange]
+class DocumentsToChangeList(RootModel[list[dict[str, str | list]]]): ...
 
 
 class DocumentChange(BaseModel):
@@ -50,29 +43,26 @@ class Llm:
         {existing_files}\n\n
         Project has been changed in the following order:\n
         {diff}\n\n
-        Answer in the following json format:
-        {DocumentsToChangeList.model_json_schema()}
         """
-        return DocumentsToChangeList(operations=json.loads(self.agent.answer(prompt)))
+        return DocumentsToChangeList(json.loads(self.agent.answer(prompt)))
 
     def update_document(
         self,
         ruleset: str,
         request: str,
-        document_path: str,
-        document_content: str,
-        template: str,
+        document: Document,
+        template: Template,
         diff: str,
         language: str,
     ) -> DocumentChangeList:
         prompt = f"""
         {ruleset}\n\n
         {request}\n\n
-        Change this document:\n
-        {document_path}\n
-        {document_content}\n\n
+        The document to change:\n
+        {document.path}\n
+        {document.numbered_content()}\n\n
         Template:\n
-        {template}\n\n
+        {template.content}\n\n
         Program difference:\n
         {diff}\n\n
         Write documentation in the {language} language.

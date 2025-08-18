@@ -1,12 +1,13 @@
 # **Input Format**
 You will receive:
-1. List of files to be modified with their current content and template type
-2. Code diff showing changes between program versions
+1. A file and its content
+2. Template of the documentation applied to this file
+3. Code diff showing changes between program versions
 
 #### **Update Process**
 
 1. **Template Analysis**
-   - Review the template structure for each file type
+   - Review the template structure file type
    - Understand required sections and formatting
 
 2. **Change Mapping**
@@ -16,6 +17,8 @@ You will receive:
      - Modified function signatures
      - Changed return values
      - Updated endpoint paths
+  
+  - Only changes related to the end result must be shown in the documentation. All internal that does not affect end result must not be included in the documentation unless it is asked otherwise.
 
 3. **Content Modification Rules**
    - **API Documentation Updates**:
@@ -30,7 +33,7 @@ You will receive:
      - Update validation rules
      - Adjust relationships
 
-   - **Service Documentation Updates**:
+   - **Library Documentation Updates**:
      - Document new methods
      - Update method descriptions
      - Modify usage examples
@@ -48,14 +51,27 @@ You will receive:
 
 6. **Output Format**
 ```json
-{
-  "file_path.md": "updated_content_string",
-  "another_file.md": "updated_content_string"
-}
+[
+  {
+    "line_start": 4,
+    "line_end": 7,
+    "content": "## GET /v2/adjust_position\nAdjusts position of an object\nV2 has additional fields:"
+
+  },
+  {
+    "line_start": 5,
+    "line_end": 5,
+    "content": "Column info: String"
+
+  }
+]
 ```
 
-#### **Special Considerations**
-- Empty content strings indicate new files that need full documentation creation
-- Always reference the provided template structure when creating new content
-- Preserve markdown formatting and section headers from templates
-- Focus on accuracy over completeness - only document what the diff shows has changed
+**Notes about output:**
+- Output must be a valid json with provided fields.
+- `line_start` value means first line to be edited in the range.
+- `line_end` value means last line to be edited in the range.
+- `content` will replace all the content in those lines.
+- You also can add rows by replacing less ranges with greater quantity of lines (for example, replace rows 4 to 5 with "\n\n\n\n\n\n")
+- You also can delete rows by replacing greater range with less quantity of lines (for example, replace 5 to 10 with "\n")
+

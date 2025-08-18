@@ -49,6 +49,12 @@ class Document:
 
         return {field: all_fields[field] for field in fields if field in all_fields}
 
+    def numbered_content(self):
+        result = []
+        for i, line in enumerate(self.content.split("\n")):
+            result.append(f"{i:>4d}|{line}")
+        return "\n".join(result)
+
 
 class Template(Document): ...
 
