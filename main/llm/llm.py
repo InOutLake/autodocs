@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, RootModel
 import json
 
 
-class DocumentsToChangeList(RootModel[list[dict[str, str | list]]]): ...
+class DocumentsToChangeList(RootModel[dict[str, str | list]]): ...
 
 
 class DocumentChange(BaseModel):

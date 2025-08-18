@@ -37,7 +37,7 @@ class DocsGenerator:
         )
         print(files_to_change)
         requested_documents_to_change = []
-        for file, action in files_to_change:
+        for file, action in files_to_change.model_dump().items():
             match action:
                 case "create", document_type:
                     document = self.docs_manager.create_document(
