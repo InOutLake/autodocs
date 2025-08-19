@@ -110,13 +110,11 @@ class DocsManager:
         return Document(document_path, self.docs_folder)
 
     def create_document(self, document_path: Path, template: str) -> Document:
-        document = Document(document_path, self.docs_folder)
-        document.create(template)
+        document = Document.create(document_path, self.docs_folder, template)
         return document
 
     def edit_document(self, document_path: Path, content: str) -> Document:
-        document = Document(document_path, self.docs_folder)
-        document.edit(content)
+        document = Document.from_path(document_path, self.docs_folder)
         return document
 
     def delete_document(self, document_path: Path):
