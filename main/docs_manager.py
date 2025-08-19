@@ -6,32 +6,31 @@ from typing import Any
 
 class Document:
     # TODO: It is uclear whether document represents existing file or not.
-    # I might create it on init if it does not exist, but how do I handle template field then?
-    # Also I may move docs manager logic to Document classmethods
+    # I might create it on init if it does not exist, but how do I handle template field then? Also I may move docs manager logic to Document classmethods
     def __init__(self, path: Path, docs_folder: Path):
         self.absolute_path = docs_folder / path
         self.path = self.absolute_path.relative_to(docs_folder)
-        self.lines = []
+        self.lines: list[str] = []
         self.template = ""
 
     @classmethod
-    def from_path(cls, path: Path, docs_folder: Path) -> "Document":
+    def from_path(cls, path: Path, docs_folder: Path):
         document = cls(path, docs_folder)
         if document.absolute_path.exists():
-            document.lines = path.read_text().split("\n")
+            document.read()
         else:
             raise FileNotFoundError()
         document.template = document.lines[0].replace("<", "").replace(">", "")
         return document
 
     @classmethod
-    def create(cls, path: Path, docs_folder: Path, template: str) -> "Document":
+    def create(cls, path: Path, docs_folder: Path, template: str):
         document = cls(path, docs_folder)
         document.template = template
         document.absolute_path.parent.mkdir(parents=True, exist_ok=True)
         document.absolute_path.touch(exist_ok=False)
         document.absolute_path.write_text(f"<<{template}>>\n")
-        document.lines = document.absolute_path.read_text()
+        document.lines = document.absolute_path.read_text().splitlines()
         document.template = template
         return document
 
@@ -39,21 +38,21 @@ class Document:
     def content(self):
         return "\n".join(self.lines)
 
+    def read(self):
+        self.lines = self.absolute_path.read_text().splitlines()
+        return self.lines
+
     def save(self):
         self.absolute_path.write_text(self.content, "utf-8")
-        self.lines = self.absolute_path.read_text().split("\n")
+        self.lines = self.absolute_path.read_text().splitlines()
 
     def delete(self):
         self.absolute_path.unlink()
 
-    def read(self):
-        self.lines = self.absolute_path.read_text().split("\n")
-        return self.lines
-
     def to_dict(self, fields: list[str] | None = None) -> dict[str, Any]:
         all_fields = {
             "path": str(self.path),
-            "content": self.lines,
+            "content": self.content,
             "template": self.template,
             "exists": self.path.absolute().exists(),
         }
@@ -63,10 +62,16 @@ class Document:
 
         return {field: all_fields[field] for field in fields if field in all_fields}
 
-    def numbered_content(self):
+    def numbered_content(self) -> str:
         result = []
         for i, line in enumerate(self.lines):
             result.append(f"{i:>4d}|{line}")
+        return "\n".join(result)
+
+    def change_line(self, number: int, content: str):
+        while len(self.lines) < number + 1:
+            self.lines.append("")
+        self.lines[number] = content
 
 
 class Template(Document): ...
@@ -104,10 +109,10 @@ class DocsManager:
     @cache
     def list_templates(self) -> list[Template]:
         path_list = self.list_folder(self.templates_folder)
-        return [Template(path, self.templates_folder) for path in path_list]
+        return [Template.from_path(path, self.templates_folder) for path in path_list]
 
-    def get_document(self, document_path: Path) -> Document:
-        return Document(document_path, self.docs_folder)
+    def read_document(self, document_path: Path) -> Document:
+        return Document.from_path(document_path, self.docs_folder)
 
     def create_document(self, document_path: Path, template: str) -> Document:
         document = Document.create(document_path, self.docs_folder, template)

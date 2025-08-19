@@ -1,77 +1,42 @@
-# **Input Format**
-You will receive:
-1. A file and its content
-2. Template of the documentation applied to this file
-3. Code diff showing changes between program versions
+Following the main ruleset, your task is to update documentation content based on code changes.
 
-#### **Update Process**
+1. TASK EXPLANATION:
+   Update the provided documentation file by analyzing the diff and applying necessary changes to keep documentation accurate and useful for end users. Use the template as structural guidance but prioritize clarity and completeness.
 
-1. **Template Analysis**
-   - Review the template structure file type
-   - Understand required sections and formatting
+2. INPUTS ANALYSIS:
+   - Diff: Identify what changed in the code that affects user-facing functionality
+   - Document content: Understand current documentation structure and content with line numbers
+   - Template content: Use as structural reference but adapt as needed for clarity. Note that both documents and templates start with a tag <<template_type>> indicating their type. Tags has to stay persistent, do not erase or edit it.
 
-2. **Change Mapping**
-   - Identify specific changes from the diff that affect each document
-   - Focus on:
-     - New parameters or fields
-     - Modified function signatures
-     - Changed return values
-     - Updated endpoint paths
-  
-  - Only changes related to the end result must be shown in the documentation. All internal that does not affect end result must not be included in the documentation unless it is asked otherwise.
+3. UPDATE RULES:
+   - Focus ONLY on changes that affect end users (APIs, interfaces, usage patterns)
+   - Add new documentation for new functionality
+   - Update existing documentation when functionality changes
+   - Remove outdated information when features are deprecated/removed
+   - Enhance clarity with examples, notes, and comprehensive explanations when beneficial
+   - Maintain user-focused perspective - document what users need to know, not implementation details
 
-3. **Content Modification Rules**
-   - **API Documentation Updates**:
-     - Update endpoint paths
-     - Modify parameter descriptions
-     - Adjust response examples
-     - Update error codes and descriptions
+4. OUTPUT FORMAT:
+   {
+     "1": "## GET /v2/adjust_position",
+     "7": "**Args**",
+     "8": "User: AuthenticatedUser"
+   }
+   - Keys: Line numbers (strings) corresponding to input document line numbers
+   - Values: Updated content for those lines
+   - To add new lines: Include \n in the content (e.g., "Line1\nLine2\nLine3")
+   - To delete lines: Provide empty string ""
+   - Only include lines that need changes
+   - All keys must be strings enclosed in double quotes
+   - All values must be strings enclosed in double quotes
+   - No trailing commas
+   - Pure JSON only - no markdown code blocks, no extra text
 
-   - **Model Documentation Updates**:
-     - Add new fields
-     - Modify field types or descriptions
-     - Update validation rules
-     - Adjust relationships
+5. CONTENT GUIDELINES:
+   - Write clear, concise, user-focused documentation
+   - Include practical examples when they enhance understanding
+   - Add notes and explanations that help users avoid common pitfalls
+   - Structure content logically following template guidance where appropriate
+   - Ensure all updated information accurately reflects current code behavior
 
-   - **Library Documentation Updates**:
-     - Document new methods
-     - Update method descriptions
-     - Modify usage examples
-
-4. **Content Generation Guidelines**
-   - Maintain consistent formatting with existing documentation
-   - Use clear, concise language
-   - Include relevant examples where appropriate
-   - Preserve existing content that remains accurate
-
-5. **Quality Assurance**
-   - Ensure all changes are reflected in documentation
-   - Verify that no outdated information remains
-   - Check that new content follows template structure
-
-6. **Output Format**
-```json
-[
-  {
-    "line_start": 4,
-    "line_end": 7,
-    "content": "## GET /v2/adjust_position\nAdjusts position of an object\nV2 has additional fields:"
-
-  },
-  {
-    "line_start": 5,
-    "line_end": 5,
-    "content": "Column info: String"
-
-  }
-]
-```
-
-**Notes about output:**
-- Output must be a valid json with provided fields.
-- `line_start` value means first line to be edited in the range.
-- `line_end` value means last line to be edited in the range.
-- `content` will replace all the content in those lines.
-- You also can add rows by replacing less ranges with greater quantity of lines (for example, replace rows 4 to 5 with "\n\n\n\n\n\n")
-- You also can delete rows by replacing greater range with less quantity of lines (for example, replace 5 to 10 with "\n")
-
+Analyze the provided information and generate the JSON object of line updates.

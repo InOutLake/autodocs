@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 from config import Config
-from docs_manager import DocsManager, Document, Template
+from docs_manager import DocsManager, Document
 from git_tracker import GitTracker
 from llm.llm import Llm
 
@@ -35,7 +35,7 @@ class DocsGenerator:
             templates_stems,
             existing_documents,
         )
-        requested_documents_to_change = []
+        requested_documents_to_change: list[Document] = []
         for file, action in files_to_change.model_dump().items():
             match action:
                 case "create", document_type:
@@ -44,7 +44,7 @@ class DocsGenerator:
                     )
                     requested_documents_to_change.append(document)
                 case "update":
-                    document = self.docs_manager.get_document(Path(file))
+                    document = self.docs_manager.read_document(Path(file))
                     requested_documents_to_change.append(document)
                 case "delete":
                     self.docs_manager.delete_document(Path(file))
@@ -58,11 +58,13 @@ class DocsGenerator:
                 raise Exception()
             update = self.llm.update_document(
                 self.config["ruleset"],
-                self.config["change_files_request"],
+                self.config["change_file_request"],
                 document,
                 doc_template,
                 diff,
                 language=self.language,
             )
-
-            print(update)
+            for number, content in update.model_dump().items():
+                document.change_line(number, content)
+            document.save()
+            print(document.content)

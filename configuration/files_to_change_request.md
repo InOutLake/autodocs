@@ -1,37 +1,28 @@
-#### **Input Format**
-You will receive:
-1. A list of existing documentation files with their template types
-2. Available templates for documents
-3. A diff showing changes between last and current program versions
+Following the main ruleset, your task is to analyze documentation needs based on code changes.
 
-#### **Analysis Process**
+1. TASK EXPLANATION:
+   Analyze the provided diff, existing documents, and available templates to determine which documentation files need to be created, updated, or deleted. Make decisions based on what content changes require documentation updates.
 
-1. **Identify Affected Components**
-   - Scan the diff for:
-     - New files or modules
-     - Modified functions, classes, or endpoints
-     - Deleted components
+2. INPUTS ANALYSIS:
+   - Review the diff to identify changed/added/removed code that affects end-user functionality
+   - Examine existing documents to understand current documentation coverage
+   - Check available templates to determine appropriate documentation structure
+   - Focus on user-facing changes: APIs, interfaces, public methods, configuration changes
 
-2. **Map Changes to Documentation Needs**
-   - For each change, determine if it affects existing documentation or requires new documentation
+3. DECISION LOGIC:
+   CREATE: When new functionality is added that requires user documentation and no existing document covers it appropriately
+   UPDATE: When existing functionality changes and current documentation needs modification to remain accurate
+   DELETE: When functionality is removed and corresponding documentation is no longer relevant
 
-3. **Decision Rules**
-   - **Create**: When new functionality is added that lacks documentation
-   - **Update**: When existing functionality is modified
-   - **Delete**: When functionality is removed entirely
-   - **No Change**: When changes are purely bug fixes or internal refactoring
+4. OUTPUT FORMAT:
+   {
+     "service/document1.md": ["create", "template_type"],
+     "another_service/other_part.md": "update",
+     "general_document.md": "delete"
+   }
+   - Keys: Full file paths with .md extension
+   - Values: Either ["create", "template_type"] or "update" or "delete"
+   - Only include files that actually need changes
+   - Choose appropriate template type for new documents based on content nature
 
-4. **Template Selection**
-   - Match new documentation to appropriate template based on component type:
-     - API endpoints → `api` template
-     - Data structures → `model` template
-     - Service logic → `service` template
-
-5. **Output Format**
-```json
-{
-  "file_path.md": ["create", "template_type"],
-  "another_file.md": "update",
-  "another_file_2.md": "delete"
-}
-```
+Analyze the provided information and generate the JSON list of documentation changes.

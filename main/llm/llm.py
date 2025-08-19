@@ -8,17 +8,7 @@ import json
 class DocumentsToChangeList(RootModel[dict[str, str | list]]): ...
 
 
-class DocumentChange(BaseModel):
-    line_start: int = Field(examples=[4])
-    line_end: int = Field(examples=[7])
-    content: str = Field(
-        examples=[
-            "## GET /v2/adjust_position\nAdjusts position of an object\nV2 has additional fields:"
-        ]
-    )
-
-
-class DocumentChangeList(RootModel[list[DocumentChange]]): ...
+class DocumentChangeList(RootModel[dict[int, str]]): ...
 
 
 class Llm:
@@ -62,9 +52,10 @@ class Llm:
         {document.path}\n
         {document.numbered_content()}\n\n
         Template:\n
-        {template.content}\n\n
+        {template.lines}\n\n
         Program difference:\n
         {diff}\n\n
         Write documentation in the {language} language.
         """
-        return DocumentChangeList(json.loads(self.agent.answer(prompt)))
+        answer = self.agent.answer(prompt)
+        return DocumentChangeList(json.loads(answer))
