@@ -66,7 +66,5 @@ class Llm:
         Program difference:\n
         {diff}\n\n
         Write documentation in the {language} language.
-        Answer in the following json format:
-        {DocumentChangeList.model_json_schema()}
         """
         return DocumentChangeList(json.loads(self.agent.answer(prompt)))

@@ -35,7 +35,6 @@ class DocsGenerator:
             templates_stems,
             existing_documents,
         )
-        print(files_to_change)
         requested_documents_to_change = []
         for file, action in files_to_change.model_dump().items():
             match action:
@@ -65,4 +64,5 @@ class DocsGenerator:
                 diff,
                 language=self.language,
             )
+
             print(update)

@@ -3,9 +3,6 @@ import os
 from pathlib import Path
 from typing import Any
 
-from docsapi.docsapi import DocsAPIProtocol
-from git_tracker import GitTracker
-
 
 class Document:
     # TODO: It is uclear whether document represents existing file or not.
@@ -14,32 +11,49 @@ class Document:
     def __init__(self, path: Path, docs_folder: Path):
         self.absolute_path = docs_folder / path
         self.path = self.absolute_path.relative_to(docs_folder)
-        try:
-            self.content = path.read_text()
-            self.template = (
-                self.content.split("\n")[0].replace("<", "").replace(">", "")
-            )
-        except Exception as _:
-            ...
+        self.lines = []
+        self.template = ""
 
-    def create(self, template: str) -> None:
-        self.absolute_path.parent.mkdir(parents=True, exist_ok=True)
-        self.absolute_path.touch(exist_ok=False)
-        self.absolute_path.write_text(f"<<{template}>>")
+    @classmethod
+    def from_path(cls, path: Path, docs_folder: Path) -> "Document":
+        document = cls(path, docs_folder)
+        if document.absolute_path.exists():
+            document.lines = path.read_text().split("\n")
+        else:
+            raise FileNotFoundError()
+        document.template = document.lines[0].replace("<", "").replace(">", "")
+        return document
 
-    def edit(self, new_content: str) -> None:
-        self.absolute_path.write_text(new_content)
+    @classmethod
+    def create(cls, path: Path, docs_folder: Path, template: str) -> "Document":
+        document = cls(path, docs_folder)
+        document.template = template
+        document.absolute_path.parent.mkdir(parents=True, exist_ok=True)
+        document.absolute_path.touch(exist_ok=False)
+        document.absolute_path.write_text(f"<<{template}>>\n")
+        document.lines = document.absolute_path.read_text()
+        document.template = template
+        return document
+
+    @property
+    def content(self):
+        return "\n".join(self.lines)
+
+    def save(self):
+        self.absolute_path.write_text(self.content, "utf-8")
+        self.lines = self.absolute_path.read_text().split("\n")
 
     def delete(self):
         self.absolute_path.unlink()
 
     def read(self):
-        return self.content
+        self.lines = self.absolute_path.read_text().split("\n")
+        return self.lines
 
     def to_dict(self, fields: list[str] | None = None) -> dict[str, Any]:
         all_fields = {
             "path": str(self.path),
-            "content": self.content,
+            "content": self.lines,
             "template": self.template,
             "exists": self.path.absolute().exists(),
         }
@@ -51,9 +65,8 @@ class Document:
 
     def numbered_content(self):
         result = []
-        for i, line in enumerate(self.content.split("\n")):
+        for i, line in enumerate(self.lines):
             result.append(f"{i:>4d}|{line}")
-        return "\n".join(result)
 
 
 class Template(Document): ...

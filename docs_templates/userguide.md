@@ -1,3 +1,4 @@
+<<userguide>>
 # Quick User Guide Template
 
 ## Product/Software Name
