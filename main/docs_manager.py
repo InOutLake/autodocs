@@ -5,7 +5,7 @@ from typing import Any
 
 
 class Document:
-    # TODO: It is uclear whether document represents existing file or not.
+    # TODO: It is uclear whether document represents existing file or not. But it basicaly is a buffer.
     # I might create it on init if it does not exist, but how do I handle template field then? Also I may move docs manager logic to Document classmethods
     def __init__(self, path: Path, docs_folder: Path):
         self.absolute_path = docs_folder / path

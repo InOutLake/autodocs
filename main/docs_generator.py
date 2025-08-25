@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from config import Config
+from config import TaskRequests
 from docs_manager import DocsManager, Document
 from git_tracker import GitTracker
 from llm.llm import Llm
@@ -13,27 +13,25 @@ def read_config(path: str, name: str):
 
 
 class DocsGenerator:
-    def __init__(
-        self, docs_manager: DocsManager, gitapi: GitTracker, llm: Llm, config: Config
-    ):
+    def __init__(self, docs_manager: DocsManager, gitapi: GitTracker, llm: Llm):
         self.docs_manager = docs_manager
         self.gitapi = gitapi
         self.llm = llm
-        self.config = config
         self.language = os.environ["LANGUAGE"]
 
-    def update_docs(self) -> None:
-        existing_documents = self.docs_manager.list_documents_dicts(fields=["path"])
+    def update_docs(self, custom_request: str | None = None) -> None:
+        existing_documents = self.docs_manager.list_documents_dicts(
+            fields=["path", "template"]
+        )
         existing_documents = json.dumps(existing_documents)
         diff = self.gitapi.last_sync_to_head_changes()
         templates = self.docs_manager.list_templates()
         templates_stems = [t.path.stem for t in templates]
         files_to_change = self.llm.get_files_to_change(
-            self.config["ruleset"],
-            self.config["files_to_change_request"],
             diff,
             templates_stems,
             existing_documents,
+            custom_request=custom_request,
         )
         requested_documents_to_change: list[Document] = []
         for file, action in files_to_change.model_dump().items():
@@ -56,9 +54,8 @@ class DocsGenerator:
                     doc_template = template
             if doc_template is None:
                 raise Exception()
+            doc_template = doc_template.content
             update = self.llm.update_document(
-                self.config["ruleset"],
-                self.config["change_file_request"],
                 document,
                 doc_template,
                 diff,

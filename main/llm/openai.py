@@ -1,24 +1,26 @@
 import os
-
 import requests
+from enum import Enum
 from llm.llmagent import LlmAgent
-from enum import StrEnum
 
 
-class CerebrasModelsEnum(StrEnum):
-    QWEN_INSTRUCT = "qwen-3-235b-a22b-instruct-2507"
+class OpenAIModelsEnum(str, Enum):
+    GPT_35_TURBO = "gpt-3.5-turbo"
+    GPT_4 = "gpt-4"
+    GPT_4_TURBO = "gpt-4-turbo"
+    GPT_4O = "gpt-4o"
 
 
-class CerebrasLlm(LlmAgent):
+class OpenAiLlm(LlmAgent):
     def __init__(self):
-        self.apikey = os.environ["CEREBRAS_API_KEY"]
-        self.url = "https://api.cerebras.ai/v1/chat/completions"
+        self.apikey = os.environ["OPENAI_API_KEY"]
+        self.url = "https://api.openai.com/v1/chat/completions"
 
     def answer(
         self,
         prompt: str,
-        max_tokens: int = 10000,
-        model: CerebrasModelsEnum = CerebrasModelsEnum.QWEN_INSTRUCT,
+        max_tokens: int = 1000,
+        model: OpenAIModelsEnum = OpenAIModelsEnum.GPT_35_TURBO,
         temperature: float = 0.2,
         **kwargs,
     ) -> str:
@@ -28,10 +30,9 @@ class CerebrasLlm(LlmAgent):
         }
         payload = {
             "messages": [{"role": "user", "content": prompt}],
-            "max_completion_tokens": max_tokens,
+            "max_tokens": max_tokens,
             "model": model,
             "temperature": temperature,
-            "stream": False,
             **kwargs,
         }
         response = requests.post(self.url, headers=headers, json=payload)

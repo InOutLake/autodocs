@@ -1,31 +1,42 @@
 import os
 
-from llm.llmagent import LlmAgent
 import requests
+from llm.llmagent import LlmAgent
+from enum import StrEnum
 
 
-class OllamaLLM(LlmAgent):
+class OllamaModelsEnum(StrEnum):
+    LAMA3 = "llama3"
+    MISTRAL = "mistral"
+
+
+class OllamaLlm(LlmAgent):
     def __init__(self):
-        self.model = os.environ["OLLAMA_MODEL"]
-        self.url = os.environ["OLLAMA_URL"]
+        self.url = os.environ.get(
+            "OLLAMA_API_URL", "http://localhost:11434/api/generate"
+        )
 
     def answer(
         self,
         prompt: str,
-        max_tokens: int = 1000,
+        max_tokens: int = 10000,
+        model: OllamaModelsEnum = OllamaModelsEnum.LAMA3,
         temperature: float = 0.2,
-        json_response: bool = True,
         **kwargs,
     ) -> str:
-        payload = {
-            "model": self.model,
-            "prompt": prompt,
-            "think": False,
-            "stream": False,
-            "options": {"temperature": temperature},
+        headers = {
+            "Content-Type": "application/json",
         }
-        if json_response:
-            payload["format"] = "json"
-        response = requests.post(self.url + "/api/generate", json=payload)
+        payload = {
+            "model": model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "temperature": temperature,
+                "num_predict": max_tokens,
+                **kwargs,
+            },
+        }
+        response = requests.post(self.url, headers=headers, json=payload)
         response.raise_for_status()
-        return response.json().get("response", "").strip()
+        return response.json()["response"]
