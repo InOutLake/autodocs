@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+from typing import Any
 from config import TaskRequests
 from docs_manager import DocsManager, Document
 from git_tracker import GitTracker
@@ -13,18 +14,32 @@ def read_config(path: str, name: str):
 
 
 class DocsGenerator:
+    # TODO: refactor to work with documents as buffers
+    # Not sure where do I place main logic: in the main function or right there in the interface functions.
+    # It may be beneficial to exclude gitapi logic and make one more abstraction layer or store diff and other values in self variables
     def __init__(self, docs_manager: DocsManager, gitapi: GitTracker, llm: Llm):
         self.docs_manager = docs_manager
         self.gitapi = gitapi
         self.llm = llm
         self.language = os.environ["LANGUAGE"]
 
-    def update_docs(self, custom_request: str | None = None) -> None:
+    def generate_changes(self, commit_hash: str | None = None) -> str:
+        return self.gitapi.commit_to_head_changes(commit_hash)
+
+    def sync_docs(self): ...
+
+    def write_docs(self): ...
+
+    # TODO: may pass the diff directly instead of commit hash
+    def documents_to_change(
+        self,
+        diff: str,
+        custom_request: str | None = None,
+    ) -> list[Document]:
         existing_documents = self.docs_manager.list_documents_dicts(
             fields=["path", "template"]
         )
         existing_documents = json.dumps(existing_documents)
-        diff = self.gitapi.last_sync_to_head_changes()
         templates = self.docs_manager.list_templates()
         templates_stems = [t.path.stem for t in templates]
         files_to_change = self.llm.get_files_to_change(
@@ -46,22 +61,36 @@ class DocsGenerator:
                     requested_documents_to_change.append(document)
                 case "delete":
                     self.docs_manager.delete_document(Path(file))
+        return requested_documents_to_change
 
-        for document in requested_documents_to_change:
-            doc_template = None
-            for template in templates:
-                if template.template == document.template:
-                    doc_template = template
-            if doc_template is None:
-                raise Exception()
-            doc_template = doc_template.content
-            update = self.llm.update_document(
-                document,
-                doc_template,
-                diff,
-                language=self.language,
-            )
-            for number, content in update.model_dump().items():
-                document.change_line(number, content)
-            document.save()
-            print(document.content)
+    def update_document(
+        self,
+        document: Document,
+        diff: str,
+        custom_request: str | None = None,
+    ) -> None:
+        templates = self.docs_manager.list_templates()
+        doc_template = None
+        for template in templates:
+            if template.template == document.template:
+                doc_template = template
+        if doc_template is None:
+            raise Exception()
+        doc_template = doc_template.content
+        update = self.llm.update_document(
+            document,
+            doc_template,
+            diff,
+            language=self.language,
+            custom_request=custom_request,
+        )
+        document.change_lines(update.model_dump())
+
+    def update_docs(
+        self,
+        documents: list[Document],
+        diff: str,
+        custom_request: str | None = None,
+    ) -> None:
+        for document in documents:
+            self.update_document(document, diff, custom_request)

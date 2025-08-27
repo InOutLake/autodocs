@@ -2,11 +2,13 @@ from functools import cache
 import os
 from pathlib import Path
 from typing import Any
+import copy
 
 
 class Document:
     # TODO: It is uclear whether document represents existing file or not. But it basicaly is a buffer.
     # I might create it on init if it does not exist, but how do I handle template field then? Also I may move docs manager logic to Document classmethods
+    # TODO: refactor Document class -- it is only a buffer to be written.
     def __init__(self, path: Path, docs_folder: Path):
         self.absolute_path = docs_folder / path
         self.path = self.absolute_path.relative_to(docs_folder)
@@ -24,14 +26,10 @@ class Document:
         return document
 
     @classmethod
-    def create(cls, path: Path, docs_folder: Path, template: str):
+    def new(cls, path: Path, docs_folder: Path, template: str):
         document = cls(path, docs_folder)
         document.template = template
-        document.absolute_path.parent.mkdir(parents=True, exist_ok=True)
-        document.absolute_path.touch(exist_ok=False)
-        document.absolute_path.write_text(f"<<{template}>>\n")
-        document.lines = document.absolute_path.read_text().splitlines()
-        document.template = template
+        document.lines[0] = f"<<{template}>>\n"
         return document
 
     @property
@@ -43,8 +41,18 @@ class Document:
         return self.lines
 
     def save(self):
+        if not self.absolute_path.exists():
+            self.absolute_path.parent.mkdir(parents=True, exist_ok=True)
+            self.absolute_path.touch(exist_ok=False)
         self.absolute_path.write_text(self.content, "utf-8")
-        self.lines = self.absolute_path.read_text().splitlines()
+
+    def normalize(self) -> None:
+        buffer_lines = copy.copy(self.lines)
+        for line in self.lines:
+            splitlines = line.splitlines()
+            for subline in splitlines:
+                buffer_lines.append(subline)
+        self.lines = buffer_lines
 
     def delete(self):
         self.absolute_path.unlink()
@@ -68,10 +76,15 @@ class Document:
             result.append(f"{i:>4d}|{line}")
         return "\n".join(result)
 
-    def change_line(self, number: int, content: str):
+    def change_line(self, number: int, content: str) -> None:
         while len(self.lines) < number + 1:
             self.lines.append("")
         self.lines[number] = content
+        self.normalize()
+
+    def change_lines(self, changes: dict[int, str]) -> None:
+        for line, content in changes.items():
+            self.change_line(line, content)
 
 
 class Template(Document): ...
@@ -111,11 +124,20 @@ class DocsManager:
         path_list = self.list_folder(self.templates_folder)
         return [Template.from_path(path, self.templates_folder) for path in path_list]
 
+    def list_templates_dicts(
+        self,
+        templates: list[Template] | None = None,
+        fields: list[str] | None = None,
+    ) -> list[dict[str, Any]]:
+        if templates is None:
+            templates = self.list_templates()
+        return [template.to_dict(fields) for template in templates]
+
     def read_document(self, document_path: Path) -> Document:
         return Document.from_path(document_path, self.docs_folder)
 
     def create_document(self, document_path: Path, template: str) -> Document:
-        document = Document.create(document_path, self.docs_folder, template)
+        document = Document.new(document_path, self.docs_folder, template)
         return document
 
     def edit_document(self, document_path: Path, content: str) -> Document:
