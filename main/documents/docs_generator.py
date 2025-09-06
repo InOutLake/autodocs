@@ -1,9 +1,7 @@
 import json
 import os
 from pathlib import Path
-from typing import Any
-from config import TaskRequests
-from docs_manager import DocsManager, Document
+from main.documents.docs_manager import DocsManager, Document
 from git_tracker import GitTracker
 from llm.llm import Llm
 
@@ -17,18 +15,10 @@ class DocsGenerator:
     # TODO: refactor to work with documents as buffers
     # Not sure where do I place main logic: in the main function or right there in the interface functions.
     # It may be beneficial to exclude gitapi logic and make one more abstraction layer or store diff and other values in self variables
-    def __init__(self, docs_manager: DocsManager, gitapi: GitTracker, llm: Llm):
+    def __init__(self, docs_manager: DocsManager, llm: Llm):
         self.docs_manager = docs_manager
-        self.gitapi = gitapi
         self.llm = llm
         self.language = os.environ["LANGUAGE"]
-
-    def generate_changes(self, commit_hash: str | None = None) -> str:
-        return self.gitapi.commit_to_head_changes(commit_hash)
-
-    def sync_docs(self): ...
-
-    def write_docs(self): ...
 
     # TODO: may pass the diff directly instead of commit hash
     def documents_to_change(

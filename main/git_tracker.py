@@ -48,8 +48,10 @@ class GitTracker:
             self.repo.head.commit.hexsha,
         )
 
-    def create_branch(self, branch_name: str | None = None) -> git.Head:
+    def switch_to_new(self, branch_name: str | None = None) -> git.Head:
         active_branch = self.repo.active_branch
         if branch_name is None:
             branch_name = f"[docs]/{str(active_branch.name)}"
-        return self.repo.create_head(branch_name, active_branch.name)
+        head = self.repo.create_head(branch_name, active_branch.name)
+        head.checkout()
+        return head
